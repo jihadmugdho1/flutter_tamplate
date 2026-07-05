@@ -105,3 +105,4 @@ flutter build ipa         # iOS release
 - `ARCHITECTURE.md` — architecture deep-dive and extension recipes
 - Flutter docs: <https://docs.flutter.dev>
 - GetX docs: <https://pub.dev/packages/get>
+# water_tracker
