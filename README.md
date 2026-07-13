@@ -53,9 +53,9 @@ lib/
 
 Current features shipped in this template:
 
-- `features/splash/` (note: currently uses `presentaion/` spelling)
-- `features/bottom_nav/` (placeholder screens + controller)
-- `features/authentication/` (placeholder login screen + starter models)
+- `features/splash/` (Clean Architecture setup)
+- `features/bottom_nav/` (Clean Architecture setup)
+- `features/authentication/` (Clean Architecture setup)
 
 ## Conventions (keep consistent)
 
@@ -74,19 +74,25 @@ Create a feature skeleton:
 
 ```
 lib/features/<name>/
-├── controllers/
-├── models/
-├── services/
+├── data/
+│   ├── datasources/
+│   ├── models/
+│   └── repositories/
+├── domain/
+│   ├── entities/
+│   ├── repositories/
+│   └── usecases/
 ├── presentation/
+│   ├── controllers/
 │   ├── screens/
 │   └── widgets/
-└── bindings/        # optional
+└── bindings/
 ```
 
 Then:
 
 - Add a `GetPage(...)` route in `lib/routes/app_routes.dart`
-- Register dependencies in a feature `Bindings`, or in `lib/core/bindings/controller_binder.dart` if it must be permanent
+- Register dependencies in a feature `Bindings` and attach it to the route.
 
 ## Useful commands
 
@@ -106,3 +112,4 @@ flutter build ipa         # iOS release
 - Flutter docs: <https://docs.flutter.dev>
 - GetX docs: <https://pub.dev/packages/get>
 # water_tracker
+# flutter_tamplate
