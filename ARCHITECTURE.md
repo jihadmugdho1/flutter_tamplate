@@ -1,560 +1,102 @@
-# Flutter GetX Template (petzy_optimized) — Architecture & Engineering Guide
+# Flutter Clean Architecture Template — Engineering Guide
 
-This document is the single source of truth for **how** this repository is
-built. It complements [README.md](README.md) (which covers **what** the app
-is and how to run it) by explaining the layering, conventions, and extension
-points contributors are expected to follow.
+This document is the definitive guide on **how** this repository is structured. We follow a strict **Feature-First Clean Architecture** utilizing **GetX** for state management, dependency injection, and routing.
 
-> TL;DR — This repo uses a **feature-first, GetX-driven** layout. A small
-> `core/` package provides cross-cutting services (network, storage, theming,
-> sizing) and every vertical feature lives in its own folder under
-> `lib/features/`.
+> **TL;DR:** Every feature is isolated in `lib/features/<name>/` and divided strictly into **Domain**, **Data**, and **Presentation** layers. Cross-feature utilities live in `lib/core/`.
 
 ---
 
-## Table of contents
+## 1. Guiding Principles
 
-1. [High-level architecture](#high-level-architecture)
-2. [Repository layout](#repository-layout)
-3. [`lib/` directory map](#lib-directory-map)
-4. [Feature module layout](#feature-module-layout)
-5. [Application bootstrap](#application-bootstrap)
-6. [State management (GetX)](#state-management-getx)
-7. [Routing](#routing)
-8. [Networking layer](#networking-layer)
-9. [Persistence layer](#persistence-layer)
-10. [Theming & design tokens](#theming--design-tokens)
-11. [Responsive sizing](#responsive-sizing)
-12. [Typography](#typography)
-13. [Assets pipeline](#assets-pipeline)
-14. [Utilities, helpers, validators, logging](#utilities-helpers-validators-logging)
-15. [Disabled / future subsystems](#disabled--future-subsystems)
-16. [Platform configuration](#platform-configuration)
-17. [Conventions & coding standards](#conventions--coding-standards)
-18. [Testing strategy](#testing-strategy)
-19. [Extension recipes](#extension-recipes)
+1. **Feature Isolation:** Features never cross-import. Shared widgets or models belong in `lib/core/`.
+2. **Dependency Rule:** `Presentation` depends on `Domain`. `Data` depends on `Domain`. `Domain` depends on **nothing**.
+3. **Thin UI & Controllers:** Widgets only observe state. Controllers do not make API calls directly; they call `UseCases`.
+4. **Design Tokens:** Hardcoded colors, font sizes, or paddings are strictly forbidden in UI files. Always use `AppColors` and `Sizer` extensions.
 
 ---
 
-## High-level architecture
+## 2. High-Level Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                         Presentation                            │
-│  Widgets + GetX controllers live inside each feature module     │
+│                         Presentation                           │
+│   (UI & State) Widgets + GetxControllers                       │
 └──────────────┬─────────────────────────────────────────────────┘
-               │ binds via GetX (Get.put / Get.find / Bindings)
+               │ Controllers call UseCases
 ┌──────────────▼─────────────────────────────────────────────────┐
-│                     Application / Core                          │
-│  Controllers · NetworkCaller · StorageService · ThemeController │
+│                           Domain                               │
+│   (Business Logic) Entities, Repository Interfaces, UseCases   │
+└──────────────▲─────────────────────────────────────────────────┘
+               │ Data Repositories implement Domain Interfaces
+┌──────────────┴─────────────────────────────────────────────────┐
+│                            Data                                │
+│   (External) DataSources, Repository Implementations, Models   │
 └──────────────┬─────────────────────────────────────────────────┘
-               │ Dio · SharedPreferences · (future) Firebase / WS
+               │ Uses Core Services
 ┌──────────────▼─────────────────────────────────────────────────┐
-│                  Platform & external services                   │
-│      REST API · Local storage · Platform channels · Assets      │
+│                  Application / Core Layer                      │
+│   NetworkCaller, StorageService, ThemeController, Sizer        │
 └────────────────────────────────────────────────────────────────┘
 ```
 
-Guiding principles:
-
-- **Feature isolation.** A feature module never reaches into another
-  feature's files. Cross-feature collaboration flows through `core/` or
-  a shared controller registered in GetX.
-- **One state solution.** GetX is the only state / DI / routing system.
-- **Thin UI.** Widgets render `Rx*` values through `Obx` and delegate all
-  logic to controllers.
-- **One HTTP door.** Every network call goes through `NetworkCaller`.
-- **One storage door.** All key/value persistence goes through
-  `StorageService`.
-- **Design tokens everywhere.** No magic hex values, no raw font sizes,
-  no raw pixel paddings in widget code.
-
 ---
 
-## Repository layout
+## 3. Standardized Feature Layout
 
-```
-flutter_tamplate/
-├── android/              # Android native project
-├── ios/                  # iOS native project
-├── linux/  macos/  web/  windows/   # Scaffolded desktop/web targets
-├── assets/
-│   ├── images/           # PNG + SVG artwork
-│   └── icons/            # SVG icons
-├── lib/                  # Application source (see below)
-├── test/                 # Flutter tests
-├── analysis_options.yaml # Lint rules
-├── pubspec.yaml          # Dependencies & asset declarations
-└── README.md / ARCHITECTURE.md
-```
+Every feature under `lib/features/` **must** strictly adhere to this exact folder skeleton:
 
-## `lib/` directory map
-
-```
-lib/
-├── main.dart                            # Entry point
-├── app.dart                             # MyApp / GetMaterialApp shell
-│
-├── core/                                # Cross-cutting concerns
-│   ├── core.dart                        # Barrel export
-│   ├── bindings/
-│   │   └── controller_binder.dart       # Initial DI bindings
-│   ├── common/
-│   │   ├── common_button/               # Reusable CommonButton
-│   │   └── styles/
-│   │       └── global_text_style.dart   # AppTextStyle helper
-│   ├── controllers/
-│   │   └── theme_controller.dart        # Persistent theme mode
-│   ├── json/                            # Generic JSON parsing helpers
-│   ├── localization/
-│   │   └── app_localizations.dart       # (placeholder — i18n)
-│   ├── models/
-│   │   └── response_data.dart           # HTTP response envelope
-│   ├── services/
-│   │   ├── cache/storage_service.dart   # SharedPreferences wrapper
-│   │   ├── firebase/                    # (disabled — FCM / notifications)
-│   │   └── network/                     # Network + connectivity helpers
-│   │       ├── network_caller.dart      # Dio-based HTTP client
-│   │       ├── internet_service.dart    # Connectivity monitoring
-│   │       └── error_funtionality.dart  # InternetToastListener widget
-│   ├── utils/
-│   │   ├── constants/                   # Colors, enums, paths, sizer, texts
-│   │   ├── device/device_utility.dart   # Screen / platform helpers
-│   │   ├── formatters/app_formatters.dart
-│   │   ├── helpers/app_helper.dart
-│   │   ├── logging/logger.dart
-│   │   ├── theme/                       # AppTheme + custom_themes/
-│   │   └── validators/app_validator.dart
-│   ├── websoketMathod/websoket.dart     # (disabled — realtime)
-│   └── datetime_formate.dart            # Relative-time formatter
-│
-├── features/                            # Vertical feature modules
-│   ├── splash/                          # Splash screen + timer redirect
-│   ├── bottom_nav/                      # Bottom nav shell + placeholder tabs
-│   └── authentication/                  # Placeholder login screen + models
-│
-└── routes/
-    └── app_routes.dart                  # Named route table
-```
-
-## Feature module layout
-
-Every feature folder follows the same skeleton. Create missing
-subfolders only when you actually have files to put in them.
-
-```
+```text
 features/<feature_name>/
-├── controllers/          # GetxController subclasses (state + logic)
-├── models/               # Plain Dart models (fromJson / toJson)
-├── services/             # Feature-specific API clients calling NetworkCaller
-├── presentation/         # UI — screens/ and widgets/
-│   ├── screens/          # Full screens (routed)
-│   └── widgets/          # Widgets private to this feature
-└── bindings/             # (optional) GetX Bindings for this feature
+├── data/                 # External communication and parsing
+│   ├── datasources/      # Remote (API) or Local (DB) API calls
+│   ├── models/           # DTOs that map JSON and extend Domain Entities
+│   └── repositories/     # Concrete implementations of Domain Interfaces
+├── domain/               # Pure business logic (No Flutter/GetX dependencies)
+│   ├── entities/         # Core business data structures
+│   ├── repositories/     # Abstract interfaces for data access
+│   └── usecases/         # Specific application business rules (e.g. LoginUseCase)
+├── presentation/         # UI and State Management
+│   ├── controllers/      # GetxControllers (Executes UseCases, updates UI state)
+│   ├── screens/          # Full routed screens
+│   └── widgets/          # UI components private to this feature
+└── bindings/             # GetX Bindings to wire Data -> Domain -> Presentation
 ```
-
-> **Historical note:** the existing code uses the misspelled folder name
-> `presentaion/` in some modules (`splash`, `bottom_nav`). New modules
-> should use `presentation/`. Rename existing folders only in a focused
-> PR because it is a wide import-path change.
-
-Rules:
-
-- Controllers expose **observables** (`RxT`, `Rx<T>`, `RxList<T>`) and
-  pure methods. They must not touch `BuildContext`.
-- Widgets only import from their own feature + `core/`. If two features
-  need the same widget, lift it into `core/common/` (create a
-  `core/common/widgets/` folder if needed).
-- Services translate models ↔ HTTP via `NetworkCaller`. They do not
-  store state.
-
-## Application bootstrap
-
-`main` → `MyApp` → `GetMaterialApp` → initial route `splashScreen`.
-
-```dart
-// lib/main.dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await StorageService.init();
-  Get.put<ThemeController>(ThemeController(), permanent: true);
-  runApp(const MyApp());
-}
-```
-
-See [lib/main.dart](lib/main.dart) and [lib/app.dart](lib/app.dart).
-
-`MyApp` wraps the tree in `Sizer`, then builds a `GetMaterialApp`:
-
-- `initialRoute: AppRoute.splashScreen`
-- `getPages: AppRoute.routes`
-- `initialBinding: ControllerBinder()` — registers `SplashController`
-- `themeMode` is reactive to `ThemeController`
-- a custom `builder` forces `TextScaler.linear(1.0)` so system font
-  scaling does not break the design
-
-Additional service bootstrap — Firebase init, push-notification setup,
-WebSocket connection, analytics — should be invoked from `main` before
-`runApp`, behind feature flags where appropriate.
-
-## State management (GetX)
-
-This repo uses GetX in three roles:
-
-| Role | API | Example |
-|------|-----|---------|
-| State | `.obs` values + `Obx` | `final count = 0.obs;` |
-| DI | `Get.put`, `Get.lazyPut`, `Get.find` | `Get.put(ThemeController(), permanent: true);` |
-| Routing | `GetMaterialApp` + `GetPage` | `Get.toNamed(AppRoute.loginScreen);` |
-
-Controller template:
-
-```dart
-class ExampleController extends GetxController {
-  // State
-  final isLoading = false.obs;
-  final items = <Item>[].obs;
-
-  // Deps (resolved via Get.find, constructor, or Bindings)
-  final ExampleService _service;
-  ExampleController(this._service);
-
-  @override
-  void onInit() {
-    super.onInit();
-    loadItems();
-  }
-
-  Future<void> loadItems() async {
-    isLoading.value = true;
-    try {
-      items.value = await _service.fetchAll();
-    } finally {
-      isLoading.value = false;
-    }
-  }
-}
-```
-
-Binding template — keep one `Bindings` class per feature and wire it
-into its `GetPage`:
-
-```dart
-class ExampleBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut(() => ExampleService());
-    Get.lazyPut(() => ExampleController(Get.find()));
-  }
-}
-```
-
-Controller registration happens today in
-[lib/core/bindings/controller_binder.dart](lib/core/bindings/controller_binder.dart).
-Keep that file for app-wide permanent controllers; put feature
-controllers in a feature-local `Bindings`.
-
-## Routing
-
-All routes are declared in
-[lib/routes/app_routes.dart](lib/routes/app_routes.dart):
-
-```dart
-class AppRoute {
-  static String loginScreen    = "/loginScreen";
-  static String splashScreen   = "/splashScreen";
-  static String bottomNavScreen = "/bottomNavScreen";
-
-  static List<GetPage> routes = [
-    GetPage(name: loginScreen,     page: () => const LoginScreen()),
-    GetPage(name: splashScreen,    page: () => const SplashScreen()),
-    GetPage(name: bottomNavScreen, page: () => const BottomNavScreen()),
-  ];
-}
-```
-
-Rules:
-
-- Navigate by **name**, never by `MaterialPageRoute`.
-- Add new routes here and attach a `binding:` when the screen owns a
-  controller.
-- Use `Get.offAllNamed` for auth flows that clear the stack,
-  `Get.toNamed` for pushes, `Get.back` for pops.
-
-## Networking layer
-
-All HTTP traffic passes through
-[lib/core/services/network/network_caller.dart](lib/core/services/network/network_caller.dart).
-
-- Singleton `NetworkCaller` wraps `Dio`.
-- 30 s connect + receive timeouts.
-- Automatically attaches the bearer token from `StorageService`.
-- Auto-retries once after token refresh on `401` (when `tokenRefresher` is wired)
-  — except for the auth endpoints (`/auth/login/`, `/auth/register/`, `/auth/logout/`,
-  `/auth/token/refresh/`).
-- Returns a uniform envelope — [ResponseData](lib/core/models/response_data.dart):
-
-```dart
-class ResponseData {
-  final bool isSuccess;
-  final int statusCode;
-  final String errorMessage;
-  final dynamic responseData;
-}
-```
-
-Feature services stay thin (example):
-
-```dart
-class FeedService {
-  final _api = NetworkCaller();
-  Future<ResponseData> getFeed() => _api.getRequest('/feed/');
-  Future<ResponseData> like(String id) =>
-      _api.postRequest('/feed/$id/like/', body: {});
-}
-```
-
-Do not instantiate `Dio` directly. If you need a one-off third-party
-request (S3 upload, etc.) add it behind a method on `NetworkCaller`.
-
-## Persistence layer
-
-[StorageService](lib/core/services/cache/storage_service.dart) wraps
-`SharedPreferences`:
-
-| Key | Purpose |
-|-----|---------|
-| `token` | Auth JWT |
-| `userId` | Currently logged-in user id |
-
-Use this service for any small, primitive, non-sensitive value. For
-larger structured data (offline cache, drafts, etc.) introduce a proper
-solution (Hive / sqflite / drift) behind a new service in
-`core/services/`.
-
-Important:
-
-- `StorageService.init()` must run before reading `StorageService.token/userId`.
-  This repo calls it in `lib/main.dart`.
-
-## Theming & design tokens
-
-| Token | Source |
-|-------|--------|
-| Colours | [lib/core/utils/constants/colors.dart](lib/core/utils/constants/colors.dart) |
-| Light / dark `ThemeData` | [lib/core/utils/theme/theme.dart](lib/core/utils/theme/theme.dart) |
-| AppBar theme | [lib/core/utils/theme/custom_themes/app_bar_theme.dart](lib/core/utils/theme/custom_themes/app_bar_theme.dart) |
-| ElevatedButton theme | [lib/core/utils/theme/custom_themes/elevated_button_theme.dart](lib/core/utils/theme/custom_themes/elevated_button_theme.dart) |
-| TextField theme | [lib/core/utils/theme/custom_themes/text_field_theme.dart](lib/core/utils/theme/custom_themes/text_field_theme.dart) |
-| Text theme | [lib/core/utils/theme/custom_themes/text_theme.dart](lib/core/utils/theme/custom_themes/text_theme.dart) |
-
-Theme mode is managed by
-[ThemeController](lib/core/controllers/theme_controller.dart) and
-persisted in SharedPreferences. It exposes `isDarkMode` and `isSystem`
-observables. Toggle with `Get.find<ThemeController>().setTheme(...)`.
-
-Brand palette (see `AppColors`):
-
-- Primary `#FF7176` — coral/pink
-- Secondary `#282828` — near-black
-- Accent `#89A7FF` — soft blue
-- Semantic: success `#22C55E`, warning `#F59E0B`, error `#EF4444`,
-  info `#3B82F6`
-
-Never hard-code colours in widgets — always go through `AppColors`.
-
-## Responsive sizing
-
-Design canvas is **360×690** points. The helpers in
-[lib/core/utils/constants/sizer.dart](lib/core/utils/constants/sizer.dart)
-scale values to the current device:
-
-| Extension | Meaning |
-|-----------|---------|
-| `.w` | Width in design pixels |
-| `.h` | Height in design pixels |
-| `.sp` | Scalable font size |
-| `.r` | Corner radius / generic |
-| `.rw`, `.rh`, `.rsp`, `.rr` | Device-aware responsive variants |
-
-Breakpoints: small 360, medium 400, large 600, tablet 768, desktop 1024.
-
-## Typography
-
-[AppTextStyle](lib/core/common/styles/global_text_style.dart) provides
-Nunito-based factories per weight × size. Rules:
-
-- Never import `TextStyle(...)` inline in widgets — always call an
-  `AppTextStyle` factory.
-- Use semantic sizes (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`, `title`,
-  `heading`, `display`).
-- Respect the forced `TextScaler.linear(1.0)` in
-  [app.dart](lib/app.dart) — do not re-enable system font scaling
-  globally.
-
-## Assets pipeline
-
-Assets are declared in [pubspec.yaml](pubspec.yaml) and referenced via
-constants:
-
-- Images: [lib/core/utils/constants/image_path.dart](lib/core/utils/constants/image_path.dart)
-- Icons: [lib/core/utils/constants/icon_path.dart](lib/core/utils/constants/icon_path.dart)
-
-Never use raw string paths in widgets — import `AppImages` / `AppIcons`
-so renames stay safe.
-
-Adding a new asset:
-
-1. Drop the file into [assets/images/](assets/images/) or
-   [assets/icons/](assets/icons/).
-2. Register it in `image_path.dart` / `icon_path.dart`.
-3. If the folder is new, add it under `flutter.assets` in
-   [pubspec.yaml](pubspec.yaml).
-
-## Utilities, helpers, validators, logging
-
-| Concern | Location |
-|---------|----------|
-| Device / platform info | [lib/core/utils/device/device_utility.dart](lib/core/utils/device/device_utility.dart) |
-| Formatting (date, currency, phone) | [lib/core/utils/formatters/app_formatters.dart](lib/core/utils/formatters/app_formatters.dart) |
-| UI helpers (snackbars, dialogs, truncation) | [lib/core/utils/helpers/app_helper.dart](lib/core/utils/helpers/app_helper.dart) |
-| Email / password / phone validation | [lib/core/utils/validators/app_validator.dart](lib/core/utils/validators/app_validator.dart) |
-| Logging | [lib/core/utils/logging/logger.dart](lib/core/utils/logging/logger.dart) |
-| Relative / absolute date | [lib/core/datetime_formate.dart](lib/core/datetime_formate.dart) |
-
-Logger usage:
-
-```dart
-AppLoggerHelper.debug('payload=$json');
-AppLoggerHelper.error('boom', error, stack);
-```
-
-Never `print` — always go through the logger so production builds can
-short-circuit output.
-
-## Disabled / future subsystems
-
-Code that's currently commented out but intended to be re-enabled:
-
-| Subsystem | Location | Needs |
-|-----------|----------|-------|
-| Firebase core + FCM | [lib/core/services/firebase/](lib/core/services/firebase/) | `firebase_core`, `firebase_messaging`, config files, `main.dart` init |
-| Local / push notifications | [lib/core/services/firebase/notification_service.dart](lib/core/services/firebase/notification_service.dart) | `flutter_local_notifications` + FCM |
-| WebSocket realtime | [lib/core/websoketMathod/websoket.dart](lib/core/websoketMathod/websoket.dart) | `web_socket_channel` or similar |
-| Localization (i18n) | [lib/core/localization/app_localizations.dart](lib/core/localization/app_localizations.dart) | ARB files + `flutter gen-l10n` |
-
-When enabling any of these, add the package to `pubspec.yaml`, wire it
-into `main.dart` / `app.dart`, and update this document.
-
-## Platform configuration
-
-**Android** — [android/app/src/main/AndroidManifest.xml](android/app/src/main/AndroidManifest.xml)
-
-- MainActivity uses `singleTop` launch mode and Flutter embedding v2.
-- Change `applicationId` in `android/app/build.gradle` before the first
-  production release.
-- Add runtime permissions (camera, location, notifications) here as
-  features need them.
-
-**iOS** — [ios/Runner/Info.plist](ios/Runner/Info.plist)
-
-- App display name is configured in `CFBundleDisplayName`.
-- Bundle id is driven by `PRODUCT_BUNDLE_IDENTIFIER` in the Xcode
-  project.
-- Portrait + landscape are enabled for iPhone; iPad supports all four
-  orientations.
-- Add `NS…UsageDescription` keys here when adopting camera, photos,
-  microphone, push, location, etc.
-
-## Conventions & coding standards
-
-### Dart / Flutter
-
-- Keep the analyzer clean: aim for `flutter analyze` to report **no** issues.
-  Fix any new warnings as you touch related code.
-  The lint set lives in [analysis_options.yaml](analysis_options.yaml).
-- `const` everything that can be `const`.
-- File names: `snake_case.dart`. Class names: `UpperCamelCase`.
-  Members: `lowerCamelCase`.
-- No relative imports that cross package boundaries — use
-  `package:flutter_tamplate/...` for long paths.
-- No hard-coded strings in production UI. Define them in
-  [app_texts.dart](lib/core/utils/constants/app_texts.dart) today, move
-  them into ARB files once i18n is wired up.
-
-### Widget authoring
-
-- Prefer `StatelessWidget` + a `GetxController` over `StatefulWidget`.
-- Each public widget sits in its own file.
-- Extract any `build` method longer than ~80 lines into smaller
-  widgets.
-- Don't pass `BuildContext` into controllers.
-
-### Git / PRs
-
-- Branches: `feat/<scope>`, `fix/<scope>`, `chore/<scope>`,
-  `docs/<scope>`.
-- Commits: imperative mood, present tense, scoped (`feat(booking):
-  add cancellation flow`).
-- Every PR should include: summary, screenshots for UI changes, a test
-  plan, and any follow-up tasks.
-- `main` is protected — merge via PR only. Never force-push.
-
-## Testing strategy
-
-The [test/](test/) folder is scaffolded. As features land, contributors
-are expected to add:
-
-| Layer | What to test | Tools |
-|-------|--------------|-------|
-| Unit | Controllers, services, validators, formatters | `flutter_test`, `mocktail` |
-| Widget | Individual widgets & screens with mocked controllers | `flutter_test`, `GetX`'s test helpers |
-| Integration | Smoke tests for critical flows (splash → home, login) | `integration_test` |
-
-Every PR that adds logic should add or update at least one test.
-
-## Extension recipes
-
-### Add a new feature module
-
-1. `mkdir -p lib/features/<name>/{controllers,models,services,presentation/screens,presentation/widgets,bindings}`.
-2. Add a `GetxController`, a service hitting `NetworkCaller`, and a
-   screen widget.
-3. Create a `Bindings` class wiring them together.
-4. Register a route in [lib/routes/app_routes.dart](lib/routes/app_routes.dart)
-   with `binding: <Name>Binding()`.
-5. Link to the feature from wherever it's reachable (bottom nav, home,
-   etc.).
-6. Add asset paths / colours / copy to their respective constants
-   files.
-
-### Add a new API endpoint
-
-1. Add a method to the relevant feature service that calls
-   `NetworkCaller.get/post/...`.
-2. Map the JSON into a model in that feature's `models/` folder.
-3. Call it from the controller, updating observables.
-4. Handle `ResponseData.isSuccess == false` — surface
-   `errorMessage` via a snackbar in `AppHelper`.
-
-### Add a new persisted preference
-
-1. Add a key and a typed getter/setter to
-   [StorageService](lib/core/services/cache/storage_service.dart).
-2. Never read `SharedPreferences` directly from a controller.
-
-### Enable Firebase
-
-1. Add `firebase_core` (and optionally `firebase_messaging`) to
-   `pubspec.yaml`.
-2. Run `flutterfire configure` to generate `firebase_options.dart`.
-3. Uncomment [lib/core/services/firebase/](lib/core/services/firebase/)
-   files and update imports.
-4. Initialise in `main()` before `runApp`.
-5. Add required iOS capabilities and Android `google-services.json`.
 
 ---
 
-For anything not covered here, default to the conventions already
-present in the codebase — and when in doubt, open a small PR that
-updates this document alongside the change.
+## 4. State Management, DI, & Routing (GetX)
+
+We use GetX for three specific roles:
+
+| Role | Implementation | Rule |
+|------|----------------|------|
+| **State** | `.obs` and `Obx` | Keep reactive state minimal. Use `Rx<T>` inside Controllers. |
+| **DI** | `Bindings` and `Get.find` | Never use global bindings for features. Lazy load via route bindings. |
+| **Routing** | `GetPage` and `Get.toNamed`| Register all routes in `lib/routes/app_routes.dart`. Navigate by name. |
+
+---
+
+## 5. Core Services (`lib/core/`)
+
+- **Networking:** All HTTP traffic must pass through `NetworkCaller` (`core/services/network/`). Never instantiate `Dio` in a feature.
+- **Persistence:** All key/value storage goes through `StorageService` (`core/services/cache/`).
+- **Theming:** Colors are in `AppColors`, typography in `AppTextStyle`. 
+- **Sizing:** Use `.w`, `.h`, `.sp`, `.r` extensions (from `Sizer`) for all dimensions.
+
+---
+
+## 6. Developer Workflows
+
+### How to add a new Feature Module
+1. Run `mkdir -p lib/features/<name>/{data/{datasources,models,repositories},domain/{entities,repositories,usecases},presentation/{controllers,screens,widgets},bindings}`.
+2. Define the **Entity** and **Repository Interface** inside `domain/`.
+3. Create a **UseCase** in `domain/usecases/` that relies on the interface.
+4. Build the **RemoteDataSource** and **RepositoryImpl** in `data/`.
+5. Create a **GetxController** in `presentation/controllers/` that calls the UseCase.
+6. Build your **Screen** in `presentation/screens/`.
+7. Wire it all together in a `Binding` class (inject DataSource -> Repository -> UseCase -> Controller).
+8. Add the screen and binding to `lib/routes/app_routes.dart`.
+
+### Quality Checks
+- Run `flutter analyze` before committing. The CI/CD pipeline expects **0 warnings**.
+- Keep PRs scoped and branch names standardized (`feat/`, `fix/`, `chore/`).
