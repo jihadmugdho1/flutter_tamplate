@@ -13,11 +13,6 @@ class SplashScreen extends StatelessWidget {
 
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
-          gradient: themeController.isDarkMode
-              ? AppColors.primaryDarkGradient
-              : AppColors.primaryLightGradient,
-        ),
         child: Column(
           children: [
             SizedBox(height: 180.h),

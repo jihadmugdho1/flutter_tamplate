@@ -4,16 +4,21 @@ class AppColors {
   AppColors._();
 
   // ─── Brand ─────────────────────────────────────────────
-  static const Color primary = Color(0xFFFF7176);
-  static const Color primarylight = Color(0xFFF6C4C4);
-  static const Color primarydark = Color(0xFFF4A0A4);
-  static const Color secondary = Color(0xFF282828);
+  static const Color primary = Color(0xFF1A0D07);
+
+  static const Color secondary = Color(0xFFB75432);
   static const Color accent = Color(0xFF89A7FF);
+  static const Color multicolor = Color(0xFFF4D242);
+  static const Color primarytext = Color(0xFFA08070);
+
+  //border color
+  static const Color bordercolor = Color(0xFF377A7D);
+  static const Color textfieldcolor = Color(0xFF212B36);
 
   // ─── Status ────────────────────────────────────────────
   static const Color success = Color(0xFF22C55E);
   static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
+  static const Color error = Color(0xFFDB321C);
   static const Color info = Color(0xFF3B82F6);
 
   // ─── Light Theme ───────────────────────────────────────
@@ -44,13 +49,6 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF000000);
   static const Color transparent = Color(0x00000000);
-
-  // ─── Gradient Light Theme ──────────────────────────────────────────
-  static const Gradient primaryLightGradient = LinearGradient(
-    begin: Alignment(0.0, 0.0),
-    end: Alignment(0.707, -0.707),
-    colors: [primarydark, primarylight],
-  );
 
   // ─── Gradient Dark Theme ──────────────────────────────────────────
   static const Gradient primaryDarkGradient = LinearGradient(
