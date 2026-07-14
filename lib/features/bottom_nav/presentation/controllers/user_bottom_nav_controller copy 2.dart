@@ -58,9 +58,9 @@ class UserBottomNavController extends GetxController {
   // ── Nav items — add/remove/reorder freely ──────────────────────────────
   final List<NavItem> useritems = const [
     NavItem(title: 'Home', iconPath: IconPath.home),
-    NavItem(title: 'Products', iconPath: IconPath.box),
-    NavItem(title: 'Orders', iconPath: IconPath.cart),
-    NavItem(title: 'Revenue', iconPath: IconPath.revenue),
+    NavItem(title: 'Market', iconPath: IconPath.market),
+    NavItem(title: 'Radio', iconPath: IconPath.radio),
+    NavItem(title: 'Cart', iconPath: IconPath.cart),
     NavItem(title: 'Profile', iconPath: IconPath.profile),
   ];
 

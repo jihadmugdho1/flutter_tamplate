@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:riddimafrica/features/bottom_nav/presentation/controllers/artist_bottom_nav_controller.dart';
+import '../controllers/user_bottom_nav_controller copy 2.dart';
 import 'package:riddimafrica/core/utils/constants/colors.dart';
 import 'package:riddimafrica/core/common/styles/global_text_style.dart';
 
@@ -12,7 +12,7 @@ class UserBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BottomNavController());
+    final controller = Get.put(UserBottomNavController());
 
     return Obx(
       () => Scaffold(
@@ -29,7 +29,7 @@ class UserBottomNav extends StatelessWidget {
 class _AppBottomNavBar extends StatelessWidget {
   const _AppBottomNavBar({required this.controller});
 
-  final BottomNavController controller;
+  final UserBottomNavController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +53,9 @@ class _AppBottomNavBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(
-                controller.items.length,
+                controller.useritems.length,
                 (index) => _NavBarItem(
-                  item: controller.items[index],
+                  item: controller.useritems[index],
                   isSelected: controller.currentIndex.value == index,
                   onTap: () => controller.changeIndex(index),
                 ),

@@ -66,7 +66,7 @@ class NavItem {
 
 // ─── Controller ─────────────────────────────────────────────────────────────
 
-class SellerBottomNavController  extends GetxController {
+class SellerBottomNavController extends GetxController {
   final RxInt currentIndex = 0.obs; // default to Home (index 0)
 
   // ── Nav items — add/remove/reorder freely ──────────────────────────────
