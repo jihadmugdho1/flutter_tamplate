@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:riddimafrica/features/bottom_nav/presentation/controllers/bottom_nav_controller.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:riddimafrica/core/utils/constants/colors.dart';
+import 'package:riddimafrica/core/common/styles/global_text_style.dart';
 
-class BottomNavScreen extends StatelessWidget {
-  const BottomNavScreen({super.key});
+import '../controllers/seller_bottom_nav_controller copy.dart';
+
+class SellerBottomNav extends StatelessWidget {
+  const SellerBottomNav({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(BottomNavController());
+    final controller = Get.put(SellerBottomNavController());
 
     return Obx(
       () => Scaffold(
@@ -24,18 +28,16 @@ class BottomNavScreen extends StatelessWidget {
 class _AppBottomNavBar extends StatelessWidget {
   const _AppBottomNavBar({required this.controller});
 
-  final BottomNavController controller;
+  final SellerBottomNavController controller;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppColors.primary,
         boxShadow: [
           BoxShadow(
-            color: theme.shadowColor.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 24,
             offset: const Offset(0, -4),
           ),
@@ -48,10 +50,11 @@ class _AppBottomNavBar extends StatelessWidget {
           child: Obx(
             () => Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(
-                controller.items.length,
+                controller.selleritems.length,
                 (index) => _NavBarItem(
-                  item: controller.items[index],
+                  item: controller.selleritems[index],
                   isSelected: controller.currentIndex.value == index,
                   onTap: () => controller.changeIndex(index),
                 ),
@@ -77,55 +80,62 @@ class _NavBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primaryColor = theme.colorScheme.primary;
-    final unselectedColor = theme.colorScheme.onSurface.withValues(alpha: 0.5);
+    final selectedColor = AppColors.white;
+    final unselectedColor = AppColors.primarytext;
 
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Container(
+          padding: const EdgeInsets.only(top: 8, bottom: 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon with animated pill background
+              // Icon with animated circular background
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeInOut,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? primaryColor.withValues(alpha: 0.12)
+                      ? AppColors.primarytext.withValues(alpha: 0.2)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  isSelected ? item.activeIcon : item.icon,
-                  size: 24,
-                  color: isSelected ? primaryColor : unselectedColor,
+                child: SvgPicture.asset(
+                  isSelected ? item.activeIconPath : item.iconPath,
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    isSelected ? selectedColor : unselectedColor,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               // Label
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 250),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? primaryColor : unselectedColor,
-                  letterSpacing: isSelected ? 0.2 : 0,
+                style: AppTextStyle(context).mediumTextStyle(
+                  fontSize: 12,
+                  color: isSelected ? selectedColor : unselectedColor,
                 ),
                 child: Text(
                   item.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 6),
+              // Indicator line for selected state
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                height: 3,
+                width: isSelected ? 24 : 0,
+                decoration: BoxDecoration(
+                  color: selectedColor,
+                  borderRadius: BorderRadius.circular(1.5),
                 ),
               ),
             ],
