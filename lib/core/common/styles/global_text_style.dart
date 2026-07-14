@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tamplate/core/utils/constants/colors.dart';
-import 'package:flutter_tamplate/core/utils/constants/sizer.dart';
+import 'package:riddimafrica/core/utils/constants/colors.dart';
+import 'package:riddimafrica/core/utils/constants/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTextStyle {
@@ -61,17 +61,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w100,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w100,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle extraLightTextStyle({
     double fontSize = AppTextStyle.md,
@@ -81,17 +80,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w200,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w200,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle lightTextStyle({
     double fontSize = AppTextStyle.md,
@@ -101,17 +99,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w300,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w300,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle regularTextStyle({
     double fontSize = AppTextStyle.md,
@@ -121,17 +118,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w400,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w400,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle mediumTextStyle({
     double fontSize = AppTextStyle.md,
@@ -141,17 +137,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w500,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w500,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle semiBoldTextStyle({
     double fontSize = AppTextStyle.lg,
@@ -161,17 +156,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w600,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w600,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle boldTextStyle({
     double fontSize = AppTextStyle.lg,
@@ -181,17 +175,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w700,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w700,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle extraBoldTextStyle({
     double fontSize = AppTextStyle.xl,
@@ -201,17 +194,16 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w800,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w800,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 
   TextStyle blackTextStyle({
     double fontSize = AppTextStyle.xl,
@@ -221,15 +213,14 @@ class AppTextStyle {
     double? letterSpacing,
     double? wordSpacing,
     TextDecoration decoration = TextDecoration.none,
-  }) =>
-      getTextStyle(
-        fontSize: fontSize,
-        color: color,
-        fontWeight: FontWeight.w900,
-        fontStyle: fontStyle,
-        lineHeight: lineHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        decoration: decoration,
-      );
+  }) => getTextStyle(
+    fontSize: fontSize,
+    color: color,
+    fontWeight: FontWeight.w900,
+    fontStyle: fontStyle,
+    lineHeight: lineHeight,
+    letterSpacing: letterSpacing,
+    wordSpacing: wordSpacing,
+    decoration: decoration,
+  );
 }

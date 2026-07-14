@@ -3,9 +3,8 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 
-
-import 'package:flutter_tamplate/core/services/cache/storage_service.dart';
-import 'package:flutter_tamplate/core/models/response_data.dart';
+import 'package:riddimafrica/core/services/cache/storage_service.dart';
+import 'package:riddimafrica/core/models/response_data.dart';
 
 // ============================================================================
 // Constants

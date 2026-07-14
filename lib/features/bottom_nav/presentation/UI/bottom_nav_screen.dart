@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_tamplate/features/bottom_nav/presentation/controllers/bottom_nav_controller.dart';
+import 'package:riddimafrica/features/bottom_nav/presentation/controllers/bottom_nav_controller.dart';
 
 class BottomNavScreen extends StatelessWidget {
   const BottomNavScreen({super.key});
@@ -9,13 +9,15 @@ class BottomNavScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(BottomNavController());
 
-    return Obx(() => Scaffold(
-          body: IndexedStack(
-            index: controller.currentIndex.value,
-            children: controller.screens,
-          ),
-          bottomNavigationBar: _AppBottomNavBar(controller: controller),
-        ));
+    return Obx(
+      () => Scaffold(
+        body: IndexedStack(
+          index: controller.currentIndex.value,
+          children: controller.screens,
+        ),
+        bottomNavigationBar: _AppBottomNavBar(controller: controller),
+      ),
+    );
   }
 }
 
@@ -116,8 +118,7 @@ class _NavBarItem extends StatelessWidget {
                 duration: const Duration(milliseconds: 250),
                 style: TextStyle(
                   fontSize: 11,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected ? primaryColor : unselectedColor,
                   letterSpacing: isSelected ? 0.2 : 0,
                 ),

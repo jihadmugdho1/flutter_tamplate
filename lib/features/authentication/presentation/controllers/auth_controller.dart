@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:flutter_tamplate/features/authentication/domain/usecases/login_usecase.dart';
-import 'package:flutter_tamplate/core/models/response_data.dart';
+import 'package:riddimafrica/features/authentication/domain/usecases/login_usecase.dart';
+import 'package:riddimafrica/core/models/response_data.dart';
 
 class AuthController extends GetxController {
   final LoginUseCase loginUseCase;
-  
+
   AuthController(this.loginUseCase);
 
   final isLoading = false.obs;

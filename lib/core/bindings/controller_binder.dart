@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
-import 'package:flutter_tamplate/core/services/network/internet_service.dart';
+import 'package:riddimafrica/core/services/network/internet_service.dart';
+
 class ControllerBinder extends Bindings {
   @override
   void dependencies() {

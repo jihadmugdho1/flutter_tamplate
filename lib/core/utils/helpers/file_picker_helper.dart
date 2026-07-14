@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_tamplate/core/utils/constants/enums.dart';
+import 'package:riddimafrica/core/utils/constants/enums.dart';
 
 class MediaPicker {
   static final ImagePicker _picker = ImagePicker();
@@ -16,14 +16,20 @@ class MediaPicker {
       context: context,
       builder: (dialogContext) {
         switch (type) {
-
           /// PHOTO ONLY
           case PickerType.photo:
             return _buildDialog(
               title: "Select Photo",
               items: [
-                _item("Take Photo", () => _pickImage(dialogContext, ImageSource.camera, onPicked)),
-                _item("Choose from Gallery", () => _pickImage(dialogContext, ImageSource.gallery, onPicked)),
+                _item(
+                  "Take Photo",
+                  () => _pickImage(dialogContext, ImageSource.camera, onPicked),
+                ),
+                _item(
+                  "Choose from Gallery",
+                  () =>
+                      _pickImage(dialogContext, ImageSource.gallery, onPicked),
+                ),
               ],
             );
 
@@ -32,8 +38,15 @@ class MediaPicker {
             return _buildDialog(
               title: "Select Video",
               items: [
-                _item("Record Video", () => _pickVideo(dialogContext, ImageSource.camera, onPicked)),
-                _item("Choose from Gallery", () => _pickVideo(dialogContext, ImageSource.gallery, onPicked)),
+                _item(
+                  "Record Video",
+                  () => _pickVideo(dialogContext, ImageSource.camera, onPicked),
+                ),
+                _item(
+                  "Choose from Gallery",
+                  () =>
+                      _pickVideo(dialogContext, ImageSource.gallery, onPicked),
+                ),
               ],
             );
 
@@ -72,11 +85,19 @@ class MediaPicker {
         items: [
           _item(
             isCamera ? "Take Photo" : "Pick Image",
-            () => _pickImage(ctx, isCamera ? ImageSource.camera : ImageSource.gallery, onPicked),
+            () => _pickImage(
+              ctx,
+              isCamera ? ImageSource.camera : ImageSource.gallery,
+              onPicked,
+            ),
           ),
           _item(
             isCamera ? "Record Video" : "Pick Video",
-            () => _pickVideo(ctx, isCamera ? ImageSource.camera : ImageSource.gallery, onPicked),
+            () => _pickVideo(
+              ctx,
+              isCamera ? ImageSource.camera : ImageSource.gallery,
+              onPicked,
+            ),
           ),
         ],
       ),
@@ -119,17 +140,11 @@ class MediaPicker {
   }) {
     return AlertDialog(
       title: Text(title),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: items,
-      ),
+      content: Column(mainAxisSize: MainAxisSize.min, children: items),
     );
   }
 
   static Widget _item(String text, VoidCallback onTap) {
-    return ListTile(
-      title: Text(text),
-      onTap: onTap,
-    );
+    return ListTile(title: Text(text), onTap: onTap);
   }
 }

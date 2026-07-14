@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:flutter_tamplate/features/splash/presentation/controllers/splash_controller.dart';
+import 'package:riddimafrica/features/splash/presentation/controllers/splash_controller.dart';
 
 class SplashBinding extends Bindings {
   @override

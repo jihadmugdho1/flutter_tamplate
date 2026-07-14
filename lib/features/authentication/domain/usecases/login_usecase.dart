@@ -1,5 +1,5 @@
-import 'package:flutter_tamplate/features/authentication/domain/repositories/auth_repository.dart';
-import 'package:flutter_tamplate/core/models/response_data.dart';
+import 'package:riddimafrica/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:riddimafrica/core/models/response_data.dart';
 
 class LoginUseCase {
   final AuthRepository repository;
