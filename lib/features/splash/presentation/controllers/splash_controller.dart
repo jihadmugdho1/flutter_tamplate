@@ -7,7 +7,7 @@ class SplashController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 1000000000000000), () {
       Get.offAllNamed(AppRoute.getBottomNavScreen());
     });
   }
